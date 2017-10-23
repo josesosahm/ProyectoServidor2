@@ -122,6 +122,7 @@ io.sockets.on('connection',function(socket){
 		Player.onDisconnect(socket);
 	});
 });
+/* creacion de un intervalo para actualizar nuestro canvas 25 fps */
 
 setInterval(function(){
 	var pack = Player.update();
