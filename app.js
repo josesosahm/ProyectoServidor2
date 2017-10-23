@@ -40,8 +40,9 @@ var Entity = function(){
 
 	return self;
 }
-import urllib.request,os,hashlib; h = '6f4c264a24d933ce70df5dedcf1dcaee' + 'ebe013ee18cced0ef93d5f746d80ef60'; pf = 'Package Control.sublime-package'; ipp = sublime.installed_packages_path(); urllib.request.install_opener( urllib.request.build_opener( urllib.request.ProxyHandler()) ); by = urllib.request.urlopen( 'http://packagecontrol.io/' + pf.replace(' ', '%20')).read(); dh = hashlib.sha256(by).hexdigest(); print('Error validating download (got %s instead of %s), please try manual install' % (dh, h)) if dh != h else open(os.path.join( ipp, pf), 'wb' ).write(by)
 
+
+//nuestro modelo de player
 var Player = function(id){
 	var self = Entity();
 	self.id = id;
@@ -78,7 +79,9 @@ var Player = function(id){
 }
 
 Player.list = {};
+
 Player.onConnect = function(socket){
+	//creamos nuestro player
 	var player = Player(socket.id);
 	socket.on('keyPress',function(data){
 		if(data.inputId === 'left')
@@ -92,10 +95,12 @@ Player.onConnect = function(socket){
 	});
 }
 
+//si el player se desconecta lo quitamos de
+//nuestra app
 Player.onDisconnect = function(socket){
 	delete Player.list[socket.id];
 }
-
+//actualizamos cada jugador player
 Player.update = function(){
 	var pack = [];
 	for(var i in Player.list){
@@ -110,6 +115,56 @@ Player.update = function(){
 	return pack;
 }
 
+/*=============================================
+=            bullet - balas        =
+=============================================*/
+//model de nuestro bullet
+var Bullet = function(angle){
+	var self =Entity();
+	self.id = Math.random();
+	self.spdX = Math.cos(angle/180*Math.PI) *10
+	self.spdY = Math.sin(angle/180*Math.PI) *10
+	self.timer = 0;
+	self.toRemove = false;
+
+	var super_update = self.update
+	self.update = function(){
+		if(self.timer++ >100)
+			self.toRemove = true
+		super_update()
+	}
+
+	//anadimos a una lista de balas
+	Bullet.list[self.id] = self
+	//retornamos 
+	return self
+}
+//creamos nuestro arrelo para guardar las balas
+Bullet.list = {}
+
+
+//actualizando
+Bullet.update = function(){
+	if (Math.random() < 0.1) {
+		Bullet(Math.random()*360)
+	}
+
+	var pack = [];
+	for(var i in Bullet.list){
+		var bullet = Bullet.list[i];
+		bullet.update();
+		pack.push({
+			x:bullet.x,
+			y:bullet.y
+		});
+	}
+	return pack;
+}
+
+
+/*=====  End obullet - balas  ======*/
+
+
 var io = require('socket.io')(serv,{});
 io.sockets.on('connection',function(socket){
 	socket.id = Math.random();
@@ -122,13 +177,25 @@ io.sockets.on('connection',function(socket){
 		Player.onDisconnect(socket);
 	});
 });
-/* creacion de un intervalo para actualizar nuestro canvas 25 fps */
 
+/*=============================================
+= creacion de un intervalo para actualizar nuestro canvas 25 fps 
+=============================================*/
 setInterval(function(){
-	var pack = Player.update();
+	var pack = {
+		player: Player.update(),
+		bullet: Bullet.update()
+
+	}
 
 	for(var i in SOCKET_LIST){
 		var socket = SOCKET_LIST[i];
 		socket.emit('newPositions',pack);
 	}
 },1000/25);
+
+
+/*=====  End of Section intervalo ======*/
+
+
+
