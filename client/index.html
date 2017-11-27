@@ -26,6 +26,8 @@
     </script>
 
     <script>
+      var WIDTH = 500;
+      var HEIGHT = 500;
       var socket = io();
       //Sistema de ingreso
       var signDiv = document.getElementById('signDiv');
@@ -66,6 +68,16 @@
       var chatForm = document.getElementById('chat-form');
 
       //Juego en cuestioon
+
+      //Sprites de los elementos
+      var Img = {};
+      Img.player = new Image();
+      Img.player.src = '/client/img/player.png';
+      Img.bullet = new Image();
+      Img.bullet.src = '/client/img/bullet.png';
+      Img.map = new Image();
+      Img.map.src = '/client/img/map.jpg';
+
       var ctx = document.getElementById("ctx").getContext("2d");
       ctx.font='30px Arial';
 
@@ -79,10 +91,20 @@
         self.hpMax = initPack.hpMax;
         self.score = initPack.score;
         self.draw = function(){
+          var x = self.x - Player.list[selfId].x + WIDTH/2;
+          var y = self.y - Player.list[selfId].y + HEIGHT/2;
           var hpWidth = 30*self.hp / self.hpMax;
-          ctx.fillRect(self.x-hpWidth/2, self.y - 40,hpWidth,4);
-          ctx.fillText(self.number,self.x,self.y);
-          ctx.fillText(self.score,self.x,self.y - 60);
+          ctx.fillStyle = 'red';
+          ctx.fillRect(x-hpWidth/2, y - 40,hpWidth,4);
+
+          var width = Img.player.width;
+          var height = Img.player.height;
+
+          ctx.drawImage(Img.player,
+            0,0,Img.player.width,Img.player.height,
+            x-width/2,y-height/2,width,height);
+          //ctx.fillText(self.number,self.x,self.y);
+          //ctx.fillText(self.score,self.x,self.y - 60);
         }
         Player.list[self.id] = self;
         return self;
@@ -95,14 +117,27 @@
         self.x = initPack.x;
         self.y = initPack.y;
         self.draw = function(){
-          ctx.fillRect(self.x-5,self.y-5,10,10);
+          //ctx.fillRect(self.x-5,self.y-5,10,10);
+          var width = Img.bullet.width/8;
+          var height = Img.bullet.height/8;
+
+          var x = self.x - Player.list[selfId].x + WIDTH/2;
+          var y = self.y - Player.list[selfId].y + HEIGHT/2;
+
+          ctx.drawImage(Img.bullet,
+            0,0,Img.bullet.width,Img.bullet.height,
+            x-width/2,y-height/2,width,height);
         }
         Bullet.list[self.id] = self;
         return self;
       }
       Bullet.list = {};
 
+      var selfId = null;
+
       socket.on('init',function(data){
+        if(data.selfId)
+          selfId = data.selfId;
         for(var i = 0; i < data.player.length; i++){
           new Player(data.player[i]);
         }
@@ -159,12 +194,27 @@
       //Paquete para borrar
 
       setInterval(function(){
+        if(!selfId)//Esto quita el error del score si no se ha iniciado
+          return;
         ctx.clearRect(0,0,500,500);
+        drawMap(); //Esto hace que el mapa este abajo del jugador
+        drawScore();
         for(var i in Player.list)
           Player.list[i].draw();
         for(var i in Bullet.list)
           Bullet.list[i].draw();
       },40);
+
+      var drawMap = function(){
+        var x = WIDTH/2 - Player.list[selfId].x;
+        var y = HEIGHT/2 - Player.list[selfId].y;
+        ctx.drawImage(Img.map,x,y);
+      }
+
+      var drawScore = function(){
+        ctx.fillStyle = 'white';
+        ctx.fillText(Player.list[selfId].score,0,30);
+      }
 
       socket.on('addToChat',function(data){
         chatText.innerHTML += '<div>' + data + '</div>';
