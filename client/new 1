@@ -1,0 +1,48 @@
+MongoDB 101
+  mongod.exe: start database
+  mongo.exe: client to send queries
+
+database
+  collection0
+    document0
+    document1
+    document2
+    ...
+  collection1
+    document0
+    document1
+    document2
+    ...
+  ...
+
+myGame
+  account
+    {username:"jose",password:"123"}
+    {username:"jose2",password:"234"}
+  progress
+    {username:"jose",level:123,questComplete:2['myQuest','myQuest2']}
+    {username:"jose2",level:2,questComplete:2['myQuest2']}
+
+create database:
+  use <DATABASE_NAME>
+  use myGame
+
+create collection
+  db.createCollection("account");
+  db.createCollection("progress");
+
+add document
+  db.account.insert({username:"jose",password:"123"});
+  db.account.insert({username:"jose2",password:"234"});
+  db.progress.insert({username:"jose",level:123,questComplete:2['myQuest','myQuest2']});
+
+read document
+  db.<COLLECTION>.find(<MUST MATCH>);
+  db.progress.find({username:"jose"});
+
+  db.<COLLECTION>.find(<MUST MATCH><TO RETRIEVE);
+  db.progress.find({username:"jose"},{level:1});
+
+update
+  db.<COLLECTION>.update(<MUST MATCH>, {$set: <NEW VALUES>});
+  db.progress.update({username:"jose"},{$set:{level:99}});
