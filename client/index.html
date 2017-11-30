@@ -1,15 +1,18 @@
 <!DOCTYPE html>
 <html>
   <head>
+
     <link rel="stylesheet" type="text/css" href="./client/estilos.css">
   </head>
   <body>
-    <div id="signDiv">
-      Username: <input id="signDiv-username" type="text"></input><br>
-      Password: <input id="signDiv-password" type="password"></input>
-      <button id="signDiv-signIn">Sign In</button>
-      <button id="signDiv-signUp">Sign Up</button>
-    </div>
+
+      <div id="signDiv">
+          Username: <input id="signDiv-username" type="text" placeholder="Ingresa tu usuario"></input>
+          <button  class="button" id="signDiv-signIn">Sign In</button><br><br>
+          Password: <input id="signDiv-password" type="password" placeholder="Ingresa tu contraseña"></input>
+          <button class="button" id="signDiv-signUp">Sign Up</button>
+      </div>
+
 
     <div id="gameDiv" style="display:none;">
       <canvas id="ctx" width="500" height="500" style="border:1px solid #000000;"></canvas>
