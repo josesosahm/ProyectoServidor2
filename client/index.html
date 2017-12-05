@@ -17,7 +17,7 @@
     <div id="gameDiv" style="display:none;">
       <canvas id="ctx" width="500" height="500" style="border:1px solid #000000;"></canvas>
       <div id="chat-text" style="width:500px;height:100px;overflow-y:scroll">
-        <div>Hello!</div>
+        <div>Escribe algo...</div>
       </div>
 
       <form id="chat-form">
@@ -76,8 +76,8 @@
       var Img = {};
       Img.jugador = new Image();
       Img.jugador.src = '/client/img/player.png';
-      Img.bullet = new Image();
-      Img.bullet.src = '/client/img/bullet.png';
+      Img.bala = new Image();
+      Img.bala.src = '/client/img/bullet.png';
       Img.map = new Image();
       Img.map.src = '/client/img/map.jpg';
 
@@ -113,28 +113,30 @@
         return self;
       }
       Jugador.list = {};
+      //var Jugador
 
-      var Bullet = function(initPack){
+      var Bala = function(initPack){
         var self = {};
         self.id = initPack.id;
         self.x = initPack.x;
         self.y = initPack.y;
         self.draw = function(){
           //ctx.fillRect(self.x-5,self.y-5,10,10);
-          var width = Img.bullet.width/8;
-          var height = Img.bullet.height/8;
+          var width = Img.bala.width/8;
+          var height = Img.bala.height/8;
 
           var x = self.x - Jugador.list[selfId].x + WIDTH/2;
           var y = self.y - Jugador.list[selfId].y + HEIGHT/2;
 
-          ctx.drawImage(Img.bullet,
-            0,0,Img.bullet.width,Img.bullet.height,
+          ctx.drawImage(Img.bala,
+            0,0,Img.bala.width,Img.bala.height,
             x-width/2,y-height/2,width,height);
         }
-        Bullet.list[self.id] = self;
+        Bala.list[self.id] = self;
         return self;
       }
-      Bullet.list = {};
+      Bala.list = {};
+      //var Bala
 
       var selfId = null;
 
@@ -145,8 +147,8 @@
           new Jugador(data.jugador[i]);
         }
 
-        for(var i =0; i < data.bullet.length;i++){
-          new Bullet(data.bullet[i]);
+        for(var i =0; i < data.bala.length;i++){
+          new Bala(data.bala[i]);
         }
       });
 
@@ -167,9 +169,9 @@
           }
         }
 
-        for(var i = 0; i < data.bullet.length;i++){
-          var pack = data.bullet[i];
-          var b = Bullet.list[data.bullet[i].id];
+        for(var i = 0; i < data.bala.length;i++){
+          var pack = data.bala[i];
+          var b = Bala.list[data.bala[i].id];
           if(b){
             if(pack.x !== undefined)
               b.x = pack.x;
@@ -180,14 +182,13 @@
       });
       //Fin de la funcion update
 
-      //Funcion de funcion Remove
       socket.on('remove',function(data){
         for(var i=0;i<data.jugador.length;i++){
           delete Jugador.list[data.jugador[i]];
         }
 
-        for(vari=0;i<data.bullet.length;i++){
-          delete Bullet.list[data.bullet[i]];
+        for(vari=0;i<data.bala.length;i++){
+          delete Bala.list[data.bala[i]];
         }
       });
       //Fin de la funcion de Remove
@@ -200,21 +201,23 @@
         if(!selfId)//Esto quita el error del score si no se ha iniciado
           return;
         ctx.clearRect(0,0,500,500);
-        drawMap(); //Esto hace que el mapa este abajo del jugador
-        drawScore();
+        dibujarMapa(); //Esto hace que el mapa este abajo del jugador
+        dScore();
         for(var i in Jugador.list)
           Jugador.list[i].draw();
-        for(var i in Bullet.list)
-          Bullet.list[i].draw();
+        for(var i in Bala.list)
+          Bala.list[i].draw();
       },40);
 
-      var drawMap = function(){
+
+      //////Dibujar las cosas en la Pantalla/////
+      var dibujarMapa = function(){
         var x = WIDTH/2 - Jugador.list[selfId].x;
         var y = HEIGHT/2 - Jugador.list[selfId].y;
         ctx.drawImage(Img.map,x,y);
       }
 
-      var drawScore = function(){
+      var dScore = function(){
         ctx.fillStyle = 'white';
         ctx.fillText(Jugador.list[selfId].score,0,30);
       }
@@ -223,6 +226,8 @@
         chatText.innerHTML += '<div>' + data + '</div>';
       });
 
+      //Revisar que el mensaje que se esta
+      //enviando a traves del chat
       socket.on('evalAnswer',function(data){
         console.log(data);
       });
@@ -236,17 +241,20 @@
         chatInput.value = '';
       }
 
+      ///////Revision de los eventos de teclado/////////
+      //Revisar si las teclas estan aplastadas
       document.onkeydown = function(event){
-        if(event.keyCode===39)
+        if(event.keyCode===39)//derecha
           socket.emit('keyPress',{inputId:'right',state:true});
-        else if(event.keyCode===38)
+        else if(event.keyCode===38)//abajo
           socket.emit('keyPress',{inputId:'down',state:true});
-        else if(event.keyCode===37)
+        else if(event.keyCode===37)//izquierda
           socket.emit('keyPress',{inputId:'left',state:true});
-        else if(event.keyCode===40)
+        else if(event.keyCode===40)//arriba
           socket.emit('keyPress',{inputId:'up',state:true});
       }
 
+      //Revisar si las teclas estan levantadas
       document.onkeyup = function(event){
         if(event.keyCode===39) //derecha
           socket.emit('keyPress',{inputId:'right',state:false});
@@ -258,14 +266,18 @@
           socket.emit('keyPress',{inputId:'up',state:false});
       }
 
+      //Revisar si el boton del mouse esta aplastado
       document.onmousedown = function(event){
         socket.emit('keyPress',{inputId:'attack',state:true});
       }
 
+      //Revisar si el boton del mouse esta levantado
       document.onmouseup = function(event){
         socket.emit('keyPress',{inputId:'attack',state:false});
       }
 
+      //Revisar la direccion del mouseAngle
+      //en base al angulo
       document.onmousemove = function(event){
         var x = -250 + event.clientX - 8;
         var y = -250 + event.clientY - 8;

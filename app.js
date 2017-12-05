@@ -1,6 +1,5 @@
 var mongojs = require("mongojs");
-var db = mongojs('localhost:27017/myGame2', ['account', 'progress']);
-
+var db = mongojs('localhost:27017/myGame2', ['account', 'progress']);//////Tomar en cuenta siempre el nombre de la base de datos
 var express = require('express');
 var app = express();
 var serv = require ('http').Server(app);
@@ -19,8 +18,8 @@ var Entity = function(){
 	var self = {
 		x:250,
 		y:250,
-		spdX:0,
-		spdY:0,
+		velX:0,
+		velY:0,
 		id:"",
 	}
 
@@ -29,8 +28,8 @@ var Entity = function(){
 	}
 
 	self.update = function(){
-		self.x += self.spdX;
-		self.y += self.spdY;
+		self.x += self.velX;
+		self.y += self.velY;
 	}
 
 	self.getDistance = function(pt){
@@ -44,11 +43,11 @@ var Jugador = function(id){
 	var self = Entity();
 	self.id = id;
 	self.number = "" + Math.floor(10*Math.random());
-	self.pressingRight = false;
-	self.pressingLeft = false;
-	self.pressingUp = false;
-	self.pressingDown = false;
-	self.pressingAttack = false;
+	self.aptRight = false;
+	self.aptLeft = false;
+	self.aptUp = false;
+	self.aptDown = false;
+	self.aptAttack = false;
 	self.mouseAngle = 0;
 	self.maxSpd = 10;
 	self.hp = 10;
@@ -60,30 +59,30 @@ var Jugador = function(id){
 		self.updateSpd();
 		super_update();
 
-		if(self.pressingAttack){
-			self.shootBullet(self.mouseAngle);
+		if(self.aptAttack){
+			self.shootBala(self.mouseAngle);
 		}
 	}
-	self.shootBullet = function(angle){
-		var b = Bullet(self.id,angle);
+	self.shootBala = function(angle){
+		var b = Bala(self.id,angle);
 		b.x = self.x;
 		b.y = self.y;
 	}
 
 	self.updateSpd = function(){
-		if(self.pressingRight)
-			self.spdX += self.maxSpd;
-		else if(self.pressingLeft)
-			self.spdX -= self.maxSpd;
+		if(self.aptRight)
+			self.velX += self.maxSpd;
+		else if(self.aptLeft)
+			self.velX -= self.maxSpd;
 		else
-			self.spdX = 0;
+			self.velX = 0;
 
-		if(self.pressingUp)
-			self.spdY += self.maxSpd;
-		else if(self.pressingDown)
-			self.spdY -= self.maxSpd;
+		if(self.aptUp)
+			self.velY += self.maxSpd;
+		else if(self.aptDown)
+			self.velY -= self.maxSpd;
 		else
-			self.spdY = 0;
+			self.velY = 0;
 	}
 
 	self.getInitPack = function(){
@@ -114,19 +113,19 @@ var Jugador = function(id){
 }
 
 Jugador.list = {};
-Jugador.onConnect = function(socket){
+Jugador.Conectado = function(socket){
 	var jugador = Jugador(socket.id);
 	socket.on('keyPress',function(data){
 		if(data.inputId === 'left')
-			jugador.pressingLeft = data.state;
+			jugador.aptLeft = data.state;
 		else if(data.inputId === 'right')
-			jugador.pressingRight = data.state;
+			jugador.aptRight = data.state;
 		else if(data.inputId === 'up')
-			jugador.pressingUp = data.state;
+			jugador.aptUp = data.state;
 		else if(data.inputId === 'down')
-			jugador.pressingDown = data.state;
+			jugador.aptDown = data.state;
 		else if(data.inputId === 'attack')
-			jugador.pressingAttack = data.state;
+			jugador.aptAttack = data.state;
 	  else if(data.inputId === 'mouseAngle')
 			jugador.mouseAngle = data.state;
 	});
@@ -134,7 +133,7 @@ Jugador.onConnect = function(socket){
 	socket.emit('init',{
 		selfId:socket.id,
 		jugador:Jugador.getAllInitPack(),
-		bullet:Bullet.getAllInitPack(),
+		bala:Bala.getAllInitPack(),
 	})
 }
 
@@ -160,11 +159,11 @@ Jugador.update = function(){
 	return pack;
 }
 
-var Bullet = function(parent,angle){
+var Bala = function(parent,angle){
 	var self = Entity();
 	self.id = Math.random();
-	self.spdX = Math.cos(angle/180*Math.PI) * 10;
-	self.spdY = Math.sin(angle/180*Math.PI) * 10;
+	self.velX = Math.cos(angle/180*Math.PI) * 10;
+	self.velY = Math.sin(angle/180*Math.PI) * 10;
 	self.parent = parent;
 	self.timer = 0;
 	self.toRemove = false;
@@ -208,33 +207,33 @@ var Bullet = function(parent,angle){
 		}
 	}
 
-	Bullet.list[self.id] = self;
-	initPack.bullet.push(self.getInitPack());
+	Bala.list[self.id] = self;
+	initPack.bala.push(self.getInitPack());
 	return self;
 }
 
-Bullet.list = {};
+Bala.list = {};
 
-Bullet.update = function(){
+Bala.update = function(){
 	var pack = [];
-	for(var i in Bullet.list){
-		var bullet = Bullet.list[i];
-		bullet.update();
-		if(bullet.toRemove){
-			delete Bullet.list[i];
-			removePack.bullet.push(bullet.id);
+	for(var i in Bala.list){
+		var bala = Bala.list[i];
+		bala.update();
+		if(bala.toRemove){
+			delete Bala.list[i];
+			removePack.bala.push(bala.id);
 		}
 		else
-			pack.push(bullet.getUpdatePack());
+			pack.push(bala.getUpdatePack());
 	}
 	return pack;
 }
 
-Bullet.getAllInitPack = function(){
-	var bullets = [];
-	for(var i in Bullet.list)
-			bullets.push(Bullet.list[i],getInitPack());
-	return bullets;
+Bala.getAllInitPack = function(){
+	var balas = [];
+	for(var i in Bala.list)
+			balas.push(Bala.list[i],getInitPack());
+	return balas;
 }
 
 var DEBUG = true;
@@ -277,7 +276,7 @@ io.sockets.on('connection',function(socket){
 		isValidPassword(data,function(res){
 			if(res)
 			{
-				Jugador.onConnect(socket);
+				Jugador.Conectado(socket);
 				socket.emit('signInResponse',{success:true});
 			}else{
 				socket.emit('signInResponse',{success:false});
@@ -322,13 +321,13 @@ io.sockets.on('connection',function(socket){
 	});
 });
 
-var initPack = {jugador:[],bullet:[]};
-var removePack = {jugador:[],bullet:[]};
+var initPack = {jugador:[],bala:[]};
+var removePack = {jugador:[],bala:[]};
 
 setInterval(function(){
 	var pack = {
 		jugador:Jugador.update(),
-		bullet:Bullet.update(),
+		bala:Bala.update(),
 	};
 
 	for(var i in SOCKET_LIST){
@@ -339,7 +338,7 @@ setInterval(function(){
 	}
 
 	initPack.jugador=[];
-	initPack.bullet=[];
+	initPack.bala=[];
 	removePack.jugador = [];
-	removePack.bullet=[];
+	removePack.bala=[];
 },1000/25);
