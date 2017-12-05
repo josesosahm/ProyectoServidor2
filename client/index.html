@@ -7,14 +7,14 @@
   <body>
 
       <div id="signDiv">
-          Username: <input id="signDiv-username" type="text" placeholder="Ingresa tu usuario"></input>
+          Usuario: <input id="signDiv-usuario" type="text" placeholder="Ingresa tu usuario"></input>
           <button  class="button" id="signDiv-signIn">Sign In</button><br><br>
-          Password: <input id="signDiv-password" type="password" placeholder="Ingresa tu contraseña"></input>
+          Contraseña: <input id="signDiv-password" type="password" placeholder="Ingresa tu contraseña"></input>
           <button class="button" id="signDiv-signUp">Sign Up</button>
       </div>
 
 
-    <div id="gameDiv" style="display:none;">
+    <div id="juegoDiv" style="display:none;">
       <canvas id="ctx" width="500" height="500" style="border:1px solid #000000;"></canvas>
       <div id="chat-text" style="width:500px;height:100px;overflow-y:scroll">
         <div>Escribe algo...</div>
@@ -32,25 +32,26 @@
       var WIDTH = 500;
       var HEIGHT = 500;
       var socket = io();
+
       //Sistema de ingreso
       var signDiv = document.getElementById('signDiv');
-      var signDivUsername = document.getElementById('signDiv-username');
+      var signDivUsuario = document.getElementById('signDiv-usuario');
       var signDivSignIn = document.getElementById('signDiv-signIn');
       var signDivSignUp = document.getElementById('signDiv-signUp');
       var signDivPassword = document.getElementById('signDiv-password');
 
       signDivSignIn.onclick = function(){
-        socket.emit('signIn',{username:signDivUsername.value,password:signDivPassword.value});
+        socket.emit('signIn',{usuario:signDivUsuario.value,password:signDivPassword.value});
       }
 
       signDivSignUp.onclick = function(){
-        socket.emit('signUp',{username:signDivUsername.value,password:signDivPassword.value});
+        socket.emit('signUp',{usuario:signDivUsuario.value,password:signDivPassword.value});
       }
 
       socket.on('signInResponse',function(data){
         if(data.success){
           signDiv.style.display = 'none';
-          gameDiv.style.display = 'inline-block';
+          juegoDiv.style.display = 'inline-block';
         }
         else
           alert("Sign in unsuccessful.");
@@ -78,8 +79,8 @@
       Img.jugador.src = '/client/img/player.png';
       Img.bala = new Image();
       Img.bala.src = '/client/img/bullet.png';
-      Img.map = new Image();
-      Img.map.src = '/client/img/map.jpg';
+      Img.mapa = new Image();
+      Img.mapa.src = '/client/img/map.jpg';
 
       var ctx = document.getElementById("ctx").getContext("2d");
       ctx.font='30px Arial';
@@ -90,15 +91,15 @@
         self.number = initPack.number;
         self.x = initPack.x;
         self.y = initPack.y;
-        self.hp = initPack.hp;
-        self.hpMax = initPack.hpMax;
+        self.vida = initPack.vida;
+        self.vidaMax = initPack.vidaMax;
         self.score = initPack.score;
         self.draw = function(){
           var x = self.x - Jugador.list[selfId].x + WIDTH/2;
           var y = self.y - Jugador.list[selfId].y + HEIGHT/2;
-          var hpWidth = 30*self.hp / self.hpMax;
+          var vidaWidth = 30*self.vida / self.vidaMax;
           ctx.fillStyle = 'red';
-          ctx.fillRect(x-hpWidth/2, y - 40,hpWidth,4);
+          ctx.fillRect(x-vidaWidth/2, y - 40,vidaWidth,4);
 
           var width = Img.jugador.width;
           var height = Img.jugador.height;
@@ -162,8 +163,8 @@
               p.x = pack.x;
             if(pack.y !== undefined)
               p.y = pack.y;
-            if(pack.hp !== undefined)
-              p.hp = pack.hp;
+            if(pack.vida !== undefined)
+              p.vida = pack.vida;
             if(pack.score !== undefined)
               p.score = pack.score;
           }
@@ -214,7 +215,7 @@
       var dibujarMapa = function(){
         var x = WIDTH/2 - Jugador.list[selfId].x;
         var y = HEIGHT/2 - Jugador.list[selfId].y;
-        ctx.drawImage(Img.map,x,y);
+        ctx.drawImage(Img.mapa,x,y);
       }
 
       var dScore = function(){

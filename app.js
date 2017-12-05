@@ -50,8 +50,8 @@ var Jugador = function(id){
 	self.aptAttack = false;
 	self.mouseAngle = 0;
 	self.maxSpd = 10;
-	self.hp = 10;
-	self.hpMax = 10;
+	self.vida = 10;
+	self.vidaMax = 10;
 	self.score = 0;
 
 	var super_update = self.update;
@@ -69,6 +69,7 @@ var Jugador = function(id){
 		b.y = self.y;
 	}
 
+	//Velocidades para el movimiento del jugador
 	self.updateSpd = function(){
 		if(self.aptRight)
 			self.velX += self.maxSpd;
@@ -91,8 +92,8 @@ var Jugador = function(id){
 			x:self.x,
 			y:self.y,
 			number:self.number,
-			hp:self.hp,
-			hpMax:self.hpMax,
+			vida:self.vida,
+			vidaMax:self.vidaMax,
 			score:self.score,
 		};
 	}
@@ -102,7 +103,7 @@ var Jugador = function(id){
 			id:self.id,
 			x:self.x,
 			y:self.y,
-			hp:self.hp,
+			vida:self.vida,
 			score:self.score,
 		}
 	}
@@ -111,7 +112,10 @@ var Jugador = function(id){
 	initPack.jugador.push(self.getInitPack());
 	return self;
 }
+//Fin de la definici[on de jugador]
 
+//Definicion de inputs de las teclas del jugador
+//Tambien esta
 Jugador.list = {};
 Jugador.Conectado = function(socket){
 	var jugador = Jugador(socket.id);
@@ -144,7 +148,7 @@ Jugador.getAllInitPack = function(){
 	return jugadores;
 }
 
-Jugador.onDisconnect = function(socket){
+Jugador.Desconectado = function(socket){
 	delete Jugador.list[socket.id];
 	removePack.jugador.push(socket.id);
 }
@@ -176,13 +180,13 @@ var Bala = function(parent,angle){
 		for(var i in Jugador.list){
 			var p = Jugador.list[i];
 			if(self.getDistance(p) < 32 && self.parent!==p.id){
-				p.hp -= 1;
+				p.vida -= 1;
 
-				if(p.hp < 0){
+				if(p.vida < 0){
 					var shooter = Jugador.list[self.parent];
 					if(shooter)
 						shooter.score += 1;
-					p.hp = p.hpMax;
+					p.vida = p.vidaMax;
 					p.x = Math.random() * 500;
 					p.y = Math.random() * 500;
 				}
@@ -243,8 +247,8 @@ var USERS = {
 	"jose2":"234"
 };
 
-var isValidPassword = function(data, cb){
-	db.account.find({username:data.username,password:data.password},function(err,res){
+var PasswordOK = function(data, cb){
+	db.account.find({usuario:data.usuario,password:data.password},function(err,res){
 		if(res.length>0)
 			cb(true);
 		else
@@ -252,8 +256,8 @@ var isValidPassword = function(data, cb){
 	});
 }
 
-var isUsernameTaken = function(data, cb){
-	db.account.find({username:data.username},function(err,res){
+var UsuarioRegistrado = function(data, cb){
+	db.account.find({usuario:data.usuario},function(err,res){
 		if(res.length>0)
 			cb(true);
 		else
@@ -262,7 +266,7 @@ var isUsernameTaken = function(data, cb){
 }
 
 var addUser = function(data, cb){
-	db.account.insert({username:data.username,password:data.password},function(err){
+	db.account.insert({usuario:data.usuario,password:data.password},function(err){
 		cb();
 	});
 }
@@ -273,7 +277,7 @@ io.sockets.on('connection',function(socket){
 	SOCKET_LIST[socket.id] = socket;
 
 	socket.on('signIn',function(data){
-		isValidPassword(data,function(res){
+		PasswordOK(data,function(res){
 			if(res)
 			{
 				Jugador.Conectado(socket);
@@ -286,7 +290,7 @@ io.sockets.on('connection',function(socket){
 
 	socket.on('signUp',function(data)
 	{
-		isUsernameTaken(data,function(res)
+		UsuarioRegistrado(data,function(res)
 		{
 			if(res)
 			{
@@ -303,7 +307,7 @@ io.sockets.on('connection',function(socket){
 
 	socket.on('disconnect',function(){
 		delete SOCKET_LIST[socket.id];
-		Jugador.onDisconnect(socket);
+		Jugador.Desconectado(socket);
 	});
 
 	socket.on('sendMsgToServer',function(data){
