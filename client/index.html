@@ -74,8 +74,8 @@
 
       //Sprites de los elementos
       var Img = {};
-      Img.player = new Image();
-      Img.player.src = '/client/img/player.png';
+      Img.jugador = new Image();
+      Img.jugador.src = '/client/img/player.png';
       Img.bullet = new Image();
       Img.bullet.src = '/client/img/bullet.png';
       Img.map = new Image();
@@ -84,7 +84,7 @@
       var ctx = document.getElementById("ctx").getContext("2d");
       ctx.font='30px Arial';
 
-      var Player = function(initPack){
+      var Jugador = function(initPack){
         var self = {};
         self.id = initPack.id;
         self.number = initPack.number;
@@ -94,25 +94,25 @@
         self.hpMax = initPack.hpMax;
         self.score = initPack.score;
         self.draw = function(){
-          var x = self.x - Player.list[selfId].x + WIDTH/2;
-          var y = self.y - Player.list[selfId].y + HEIGHT/2;
+          var x = self.x - Jugador.list[selfId].x + WIDTH/2;
+          var y = self.y - Jugador.list[selfId].y + HEIGHT/2;
           var hpWidth = 30*self.hp / self.hpMax;
           ctx.fillStyle = 'red';
           ctx.fillRect(x-hpWidth/2, y - 40,hpWidth,4);
 
-          var width = Img.player.width;
-          var height = Img.player.height;
+          var width = Img.jugador.width;
+          var height = Img.jugador.height;
 
-          ctx.drawImage(Img.player,
-            0,0,Img.player.width,Img.player.height,
+          ctx.drawImage(Img.jugador,
+            0,0,Img.jugador.width,Img.jugador.height,
             x-width/2,y-height/2,width,height);
           //ctx.fillText(self.number,self.x,self.y);
           //ctx.fillText(self.score,self.x,self.y - 60);
         }
-        Player.list[self.id] = self;
+        Jugador.list[self.id] = self;
         return self;
       }
-      Player.list = {};
+      Jugador.list = {};
 
       var Bullet = function(initPack){
         var self = {};
@@ -124,8 +124,8 @@
           var width = Img.bullet.width/8;
           var height = Img.bullet.height/8;
 
-          var x = self.x - Player.list[selfId].x + WIDTH/2;
-          var y = self.y - Player.list[selfId].y + HEIGHT/2;
+          var x = self.x - Jugador.list[selfId].x + WIDTH/2;
+          var y = self.y - Jugador.list[selfId].y + HEIGHT/2;
 
           ctx.drawImage(Img.bullet,
             0,0,Img.bullet.width,Img.bullet.height,
@@ -141,8 +141,8 @@
       socket.on('init',function(data){
         if(data.selfId)
           selfId = data.selfId;
-        for(var i = 0; i < data.player.length; i++){
-          new Player(data.player[i]);
+        for(var i = 0; i < data.jugador.length; i++){
+          new Jugador(data.jugador[i]);
         }
 
         for(var i =0; i < data.bullet.length;i++){
@@ -152,9 +152,9 @@
 
       //Funcion update
       socket.on('update',function(data){
-        for(var i = 0; i < data.player.length;i++){
-          var pack = data.player[i];
-          var p = Player.list[pack.id];
+        for(var i = 0; i < data.jugador.length;i++){
+          var pack = data.jugador[i];
+          var p = Jugador.list[pack.id];
           if(p){
             if(pack.x !== undefined)
               p.x = pack.x;
@@ -182,8 +182,8 @@
 
       //Funcion de funcion Remove
       socket.on('remove',function(data){
-        for(var i=0;i<data.player.length;i++){
-          delete Player.list[data.player[i]];
+        for(var i=0;i<data.jugador.length;i++){
+          delete Jugador.list[data.jugador[i]];
         }
 
         for(vari=0;i<data.bullet.length;i++){
@@ -202,21 +202,21 @@
         ctx.clearRect(0,0,500,500);
         drawMap(); //Esto hace que el mapa este abajo del jugador
         drawScore();
-        for(var i in Player.list)
-          Player.list[i].draw();
+        for(var i in Jugador.list)
+          Jugador.list[i].draw();
         for(var i in Bullet.list)
           Bullet.list[i].draw();
       },40);
 
       var drawMap = function(){
-        var x = WIDTH/2 - Player.list[selfId].x;
-        var y = HEIGHT/2 - Player.list[selfId].y;
+        var x = WIDTH/2 - Jugador.list[selfId].x;
+        var y = HEIGHT/2 - Jugador.list[selfId].y;
         ctx.drawImage(Img.map,x,y);
       }
 
       var drawScore = function(){
         ctx.fillStyle = 'white';
-        ctx.fillText(Player.list[selfId].score,0,30);
+        ctx.fillText(Jugador.list[selfId].score,0,30);
       }
 
       socket.on('addToChat',function(data){

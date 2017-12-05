@@ -40,7 +40,7 @@ var Entity = function(){
 	return self;
 }
 
-var Player = function(id){
+var Jugador = function(id){
 	var self = Entity();
 	self.id = id;
 	self.number = "" + Math.floor(10*Math.random());
@@ -108,54 +108,54 @@ var Player = function(id){
 		}
 	}
 
-	Player.list[id] = self;
-	initPack.player.push(self.getInitPack());
+	Jugador.list[id] = self;
+	initPack.jugador.push(self.getInitPack());
 	return self;
 }
 
-Player.list = {};
-Player.onConnect = function(socket){
-	var player = Player(socket.id);
+Jugador.list = {};
+Jugador.onConnect = function(socket){
+	var jugador = Jugador(socket.id);
 	socket.on('keyPress',function(data){
 		if(data.inputId === 'left')
-			player.pressingLeft = data.state;
+			jugador.pressingLeft = data.state;
 		else if(data.inputId === 'right')
-			player.pressingRight = data.state;
+			jugador.pressingRight = data.state;
 		else if(data.inputId === 'up')
-			player.pressingUp = data.state;
+			jugador.pressingUp = data.state;
 		else if(data.inputId === 'down')
-			player.pressingDown = data.state;
+			jugador.pressingDown = data.state;
 		else if(data.inputId === 'attack')
-			player.pressingAttack = data.state;
+			jugador.pressingAttack = data.state;
 	  else if(data.inputId === 'mouseAngle')
-			player.mouseAngle = data.state;
+			jugador.mouseAngle = data.state;
 	});
 
 	socket.emit('init',{
 		selfId:socket.id,
-		player:Player.getAllInitPack(),
+		jugador:Jugador.getAllInitPack(),
 		bullet:Bullet.getAllInitPack(),
 	})
 }
 
-Player.getAllInitPack = function(){
-	var players = [];
-	for(var i in Player.list)
-		players.push(Player.list[i].getInitPack());
-	return players;
+Jugador.getAllInitPack = function(){
+	var jugadores = [];
+	for(var i in Jugador.list)
+		jugadores.push(Jugador.list[i].getInitPack());
+	return jugadores;
 }
 
-Player.onDisconnect = function(socket){
-	delete Player.list[socket.id];
-	removePack.player.push(socket.id);
+Jugador.onDisconnect = function(socket){
+	delete Jugador.list[socket.id];
+	removePack.jugador.push(socket.id);
 }
 
-Player.update = function(){
+Jugador.update = function(){
 	var pack = [];
-	for(var i in Player.list){
-		var player = Player.list[i];
-		player.update();
-		pack.push(player.getUpdatePack());
+	for(var i in Jugador.list){
+		var jugador = Jugador.list[i];
+		jugador.update();
+		pack.push(jugador.getUpdatePack());
 	}
 	return pack;
 }
@@ -174,13 +174,13 @@ var Bullet = function(parent,angle){
 			self.toRemove = true;
 		super_update();
 
-		for(var i in Player.list){
-			var p = Player.list[i];
+		for(var i in Jugador.list){
+			var p = Jugador.list[i];
 			if(self.getDistance(p) < 32 && self.parent!==p.id){
 				p.hp -= 1;
 
 				if(p.hp < 0){
-					var shooter = Player.list[self.parent];
+					var shooter = Jugador.list[self.parent];
 					if(shooter)
 						shooter.score += 1;
 					p.hp = p.hpMax;
@@ -277,7 +277,7 @@ io.sockets.on('connection',function(socket){
 		isValidPassword(data,function(res){
 			if(res)
 			{
-				Player.onConnect(socket);
+				Jugador.onConnect(socket);
 				socket.emit('signInResponse',{success:true});
 			}else{
 				socket.emit('signInResponse',{success:false});
@@ -304,13 +304,13 @@ io.sockets.on('connection',function(socket){
 
 	socket.on('disconnect',function(){
 		delete SOCKET_LIST[socket.id];
-		Player.onDisconnect(socket);
+		Jugador.onDisconnect(socket);
 	});
 
 	socket.on('sendMsgToServer',function(data){
-		var playerName = ("" + socket.id).slice(2,7);
+		var jugadorName = ("" + socket.id).slice(2,7);
 		for(var i in SOCKET_LIST){
-			SOCKET_LIST[i].emit('addToChat', playerName + ': ' + data);
+			SOCKET_LIST[i].emit('addToChat', jugadorName + ': ' + data);
 		}
 	});
 
@@ -322,12 +322,12 @@ io.sockets.on('connection',function(socket){
 	});
 });
 
-var initPack = {player:[],bullet:[]};
-var removePack = {player:[],bullet:[]};
+var initPack = {jugador:[],bullet:[]};
+var removePack = {jugador:[],bullet:[]};
 
 setInterval(function(){
 	var pack = {
-		player:Player.update(),
+		jugador:Jugador.update(),
 		bullet:Bullet.update(),
 	};
 
@@ -338,8 +338,8 @@ setInterval(function(){
 		socket.emit('remove',removePack);
 	}
 
-	initPack.player=[];
+	initPack.jugador=[];
 	initPack.bullet=[];
-	removePack.player = [];
+	removePack.jugador = [];
 	removePack.bullet=[];
 },1000/25);
