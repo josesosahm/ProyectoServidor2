@@ -1,5 +1,25 @@
 body{
   font-family:Arial;
   color:white;
-  background-color:SteelBlue;
+  background-color:#00001a;
+}
+
+.button{
+  -webkit-transition-duration:0.4s;
+  transition-duration:0.4s;
+  display:inline-block;
+  text-align:center;
+  width:120px;
+  cursor:pointer;
+  border-radius:2px;
+}
+
+.button:hover{
+  background-color:#29293d;
+  color:white;
+}
+
+#signDiv, #signDiv-usuario, #signDiv-password, #signDiv-signIn, #signDiv-signUp{
+  margin:auto;
+  font-size: 20px;
 }
