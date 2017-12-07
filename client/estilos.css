@@ -19,7 +19,7 @@ body{
   color:white;
 }
 
-#signDiv{
+#signDiv, #signDiv-usuario, #signDiv-password, #signDiv-signIn, #signDiv-signUp{
   margin:auto;
-  font-size:30px;
+  font-size: 20px;
 }
