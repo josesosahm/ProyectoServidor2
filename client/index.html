@@ -7,10 +7,9 @@
   <body>
 
       <div id="signDiv">
-          Usuario: <input id="signDiv-usuario" type="text" placeholder="Ingresa tu usuario"></input>
-          <button  class="button" id="signDiv-signIn">Sign In</button><br><br>
-          Contraseña: <input id="signDiv-password" type="password" placeholder="Ingresa tu contraseña"></input>
-          <button class="button" id="signDiv-signUp">Sign Up</button>
+          <input id="signDiv-usuario" type="text" placeholder="Ingresa tu usuario"></input><br>
+          <input id="signDiv-password" type="password" placeholder="Ingresa tu contraseña"></input><br>
+          <button  class="button" id="signDiv-signIn">Sign In</button><button class="button" id="signDiv-signUp">Sign Up</button>
       </div>
 
 
@@ -157,16 +156,16 @@
       socket.on('update',function(data){
         for(var i = 0; i < data.jugador.length;i++){
           var pack = data.jugador[i];
-          var p = Jugador.list[pack.id];
-          if(p){
+          var j = Jugador.list[pack.id];
+          if(j){
             if(pack.x !== undefined)
-              p.x = pack.x;
+              j.x = pack.x;
             if(pack.y !== undefined)
-              p.y = pack.y;
+              j.y = pack.y;
             if(pack.vida !== undefined)
-              p.vida = pack.vida;
+              j.vida = pack.vida;
             if(pack.score !== undefined)
-              p.score = pack.score;
+              j.score = pack.score;
           }
         }
 

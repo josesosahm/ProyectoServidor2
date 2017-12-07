@@ -178,17 +178,17 @@ var Bala = function(parent,angle){
 		super_update();
 
 		for(var i in Jugador.list){
-			var p = Jugador.list[i];
-			if(self.getDistance(p) < 32 && self.parent!==p.id){
-				p.vida -= 1;
+			var j = Jugador.list[i];
+			if(self.getDistance(j) < 32 && self.parent!==j.id){
+				j.vida -= 1;
 
-				if(p.vida < 0){
+				if(j.vida < 0){
 					var shooter = Jugador.list[self.parent];
 					if(shooter)
 						shooter.score += 1;
-					p.vida = p.vidaMax;
-					p.x = Math.random() * 500;
-					p.y = Math.random() * 500;
+					j.vida = j.vidaMax;
+					j.x = Math.random() * 500;
+					j.y = Math.random() * 500;
 				}
 				self.toRemove = true;
 			}
