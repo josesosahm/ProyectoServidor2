@@ -13,8 +13,8 @@
       </div>
 
 
-    <div id="juegoDiv" style="display:none;">
-      <canvas id="ctx" width="500" height="500" style="border:1px solid #000000;"></canvas>
+    <div id="juegoDiv" style="display:none;" color="#000000;">
+      <canvas id="ctx" width="500" height="500" style="border:1px solid #000000;" ></canvas>
       <div id="chat-text" style="width:500px;height:100px;overflow-y:scroll">
         <div>Escribe algo...</div>
       </div>
@@ -79,7 +79,7 @@
       Img.bala = new Image();
       Img.bala.src = '/client/img/bullet.png';
       Img.mapa = new Image();
-      Img.mapa.src = '/client/img/map.jpg';
+      Img.mapa.src = '/client/img/background.jpg';
 
       var ctx = document.getElementById("ctx").getContext("2d");
       ctx.font='30px Arial';
