@@ -84,6 +84,7 @@
       var ctx = document.getElementById("ctx").getContext("2d");
       ctx.font='30px Arial';
 
+      //Inicializacion del jugador
       var Jugador = function(initPack){
         var self = {};
         self.id = initPack.id;
@@ -115,6 +116,7 @@
       Jugador.list = {};
       //var Jugador
 
+      //Inicializacion de la bala
       var Bala = function(initPack){
         var self = {};
         self.id = initPack.id;
@@ -140,6 +142,7 @@
 
       var selfId = null;
 
+      //Enviar al jugador al servidor
       socket.on('init',function(data){
         if(data.selfId)
           selfId = data.selfId;
@@ -147,6 +150,7 @@
           new Jugador(data.jugador[i]);
         }
 
+        //crear bala
         for(var i =0; i < data.bala.length;i++){
           new Bala(data.bala[i]);
         }
@@ -182,20 +186,18 @@
       });
       //Fin de la funcion update
 
+      //Quitar jugadores
       socket.on('remove',function(data){
         for(var i=0;i<data.jugador.length;i++){
           delete Jugador.list[data.jugador[i]];
         }
-
+        //esta funcion ayuda a quitar las balas
+        //cuando se quita tambien al jugador
         for(vari=0;i<data.bala.length;i++){
           delete Bala.list[data.bala[i]];
         }
       });
       //Fin de la funcion de Remove
-
-      //Paquete de inicializacion
-      //Paquete de actualizacion
-      //Paquete para borrar
 
       setInterval(function(){
         if(!selfId)//Esto quita el error del score si no se ha iniciado
