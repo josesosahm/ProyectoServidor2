@@ -1,17 +1,34 @@
 <!DOCTYPE html>
 <html>
   <head>
-
-    <link rel="stylesheet" type="text/css" href="./client/estilos.css">
+      <link rel="stylesheet" type="text/css" href="./client/estilos.css">
+      <link rel="stylesheet" type="text/css" href="./client/bootstrap.css">
   </head>
   <body>
+    <div class="container-fluid" id="signDiv">
 
-      <div id="signDiv">
-          <input id="signDiv-usuario" type="text" placeholder="Ingresa tu usuario"></input><br>
-          <input id="signDiv-password" type="password" placeholder="Ingresa tu contraseña"></input><br>
-          <button  class="button" id="signDiv-signIn">Sign In</button><button class="button" id="signDiv-signUp">Sign Up</button>
+      <div class="row">
+          <div class="col-md4 col-md-offset4">
+              <img src="https://i.imgur.com/JbRhq18.png" style="width: 100%; height: auto; max-width: 250px; display: block; margin: 0 auto"/>
+          </div>
       </div>
-
+          <div class="row">
+              <div class="col-md-4 col-md-offset-4">
+                  <input id="signDiv-usuario" type="text" placeholder="Ingresa tu usuario" style="margin-left: 75px">
+              </div>
+          </div>
+          <div class="row">
+              <div class="col-md-4 col-md-offset-4">
+                  <input id="signDiv-password" type="password" placeholder="Ingresa tu contraseña" style="margin-left: 75px">
+              </div>
+          </div>
+          <div class="row">
+              <div class="col-md-4 col-md-offset-4" style="cent">
+                  <button class="button" id="signDiv-signIn" style="margin-left: 60px">Sign In</button>
+                  <button class="button" id="signDiv-signUp">Sign Up</button>
+              </div>
+          </div>
+    </div>
 
     <div id="juegoDiv" style="display:none;">
       <canvas id="ctx" width="500" height="500" style="border:1px solid #000000;"></canvas>
@@ -79,7 +96,7 @@
       Img.bala = new Image();
       Img.bala.src = '/client/img/bullet.png';
       Img.mapa = new Image();
-      Img.mapa.src = '/client/img/map.jpg';
+      Img.mapa.src = '/client/img/background.jpg';
 
       var ctx = document.getElementById("ctx").getContext("2d");
       ctx.font='30px Arial';
